@@ -2,266 +2,533 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>DUAL // FUSION OS — V99.2 Platinum</title>
+  <title>DUAL // FUSION OS — V99 Refactored</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link rel="./manifest" href="manifest.json">
-<meta name="theme-color" content="#05070a">
-<link rel="apple-touch-icon" href="./icon-192.png">
+  <meta name="theme-color" content="#05070a">
 
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker Registered'));
-  }
-</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     :root{
-      --bg-deep:#030406; --glass-surface:rgba(18,18,22,0.7); --glass-border:rgba(255,255,255,0.06);
-      --neon-cyan:#00f2ff; --neon-purple:#bd00ff;
+      --bg-deep:#030406; --glass-surface:rgba(18,18,22,0.65); --glass-border:rgba(255,255,255,0.06);
+      --neon-cyan:#00f2ff; --neon-purple:#bd00ff; --neon-gold:#ffd700;
       --font-ui:'Montserrat',sans-serif; --font-code:'JetBrains Mono',monospace;
+      --ease-overshoot: cubic-bezier(0.34, 1.3, 0.64, 1);
       --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none;user-select:none}
+    .activation-pre, .cyber-input, input, textarea, .toaster { user-select:text !important; -webkit-user-select:text !important; }
     
     body{margin:0;padding:0;min-height:100vh;background-color:var(--bg-deep);color:#fff;
       font-family:var(--font-ui);overflow:hidden;
-      background-image:radial-gradient(circle at 50% 50%, rgba(0,242,255,0.03) 0%, transparent 80%);
+      background-image:linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size:50px 50px;
     }
 
-    /* Ambient */
+    /* Ambient Light */
     .ambient-light{position:fixed;inset:0;z-index:0;pointer-events:none}
-    .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:float 20s infinite alternate ease-in-out}
-    .blob-1{width:50vw;height:50vw;background:var(--neon-cyan);top:-10%;left:-10%}
-    .blob-2{width:40vw;height:40vw;background:var(--neon-purple);bottom:-10%;right:-10%}
-    @keyframes float{0%{transform:translate(0,0)}100%{transform:translate(30px,50px)}}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.14;animation:float 25s infinite alternate ease-in-out}
+    .blob-1{width:60vw;height:60vw;background:var(--neon-cyan);top:-20%;left:-20%}
+    .blob-2{width:50vw;height:50vw;background:var(--neon-purple);bottom:-20%;right:-20%;animation-delay:-5s}
+    @keyframes float{0%{transform:translate(0,0)}100%{transform:translate(40px,60px)}}
 
-    /* Main Card */
-    .container{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;pointer-events:none}
-    
+    /* Container Central */
+    .container{
+      position: absolute; inset:0; pointer-events:none;
+      display:flex; align-items:center; justify-content:center; perspective:1200px; z-index:10;
+    }
+
+    /* O Card Principal */
     .fusion-card{
-      pointer-events:auto; width:100%; max-width:420px;
+      pointer-events:auto;
+      width:100%; max-width:440px;
       background:var(--glass-surface); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
-      border:1px solid var(--glass-border); border-radius:32px; padding:25px;
-      box-shadow:0 30px 80px rgba(0,0,0,0.8);
-      display:flex; flex-direction:column; gap:10px;
-      transition: all 0.5s var(--ease-smooth);
-      will-change: transform, width, height, opacity;
-      touch-action: none;
+      border:1px solid var(--glass-border); border-radius:36px; padding:30px 25px;
+      box-shadow:0 40px 100px rgba(0,0,0,0.8);
+      position:relative; opacity:0; transform:translateY(50px) scale(0.96);
+      display:flex; flex-direction:column; gap:8px;
+      transition: width 0.5s var(--ease-smooth), height 0.5s var(--ease-smooth), border-radius 0.5s var(--ease-smooth), transform 0.4s var(--ease-smooth), opacity 0.4s;
+      will-change: transform, width, height, border-radius, left, top;
+      /* Importante para o Drag não bugar */
+      touch-action: none; 
     }
-
-    /* Estados de Transmutação */
-    .fusion-card.closed { width:280px; padding:15px; border-radius:24px; }
-    .fusion-card.closed .card-body { display:none; }
+    .fusion-card.active{opacity:1;transform:translateY(0) scale(1);}
     
+    /* Estado CLOSED */
+    .fusion-card.closed{width:260px; padding:14px 16px; border-radius:22px;} 
+    .fusion-card.closed .card-body{display:none}
+    
+    /* ========================================= */
+    /* ESTADO: ORB                               */
+    /* ========================================= */
     .fusion-card.orb {
-      position: fixed !important; width: 70px !important; height: 70px !important;
+      position: fixed !important;
+      width: 68px !important; height: 68px !important;
       padding: 0 !important; border-radius: 50% !important;
-      justify-content: center; align-items: center; cursor: grab;
-      box-shadow: 0 0 30px rgba(0,242,255,0.3); z-index: 9999;
+      align-items: center; justify-content: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0,242,255,0.2);
+      z-index: 9999;
+      cursor: grab;
     }
-    .fusion-card.orb .card-body, .fusion-card.orb .small-preview, .fusion-card.orb .text-block, .fusion-card.orb .clock-widget { display: none !important; }
-    .fusion-card.orb .card-header { margin:0; padding:0; width:100%; height:100%; justify-content:center; }
-    .fusion-card.orb .avatar-slot { width:56px; height:56px; border-radius:50%; margin:0; }
+    .fusion-card.orb:active { cursor: grabbing; transform: scale(0.9); }
+    
+    /* Esconde elementos no modo ORB */
+    .fusion-card.orb .text-block, .fusion-card.orb .clock-widget, .fusion-card.orb .card-body, .fusion-card.orb .small-preview { display: none !important; }
+    .fusion-card.orb .card-header { margin: 0; width: 100%; height: 100%; justify-content: center; padding:0; }
+    .fusion-card.orb .avatar-slot { width: 54px; height: 54px; border-radius: 50%; margin:0; opacity: 1; pointer-events: none; }
 
+    /* ========================================= */
+    /* ESTADO: HUD                               */
+    /* ========================================= */
     .fusion-card.hud {
-      position: fixed !important; top: 15px !important; left: 50% !important;
-      transform: translateX(-50%) !important; width: 90% !important; max-width: 550px !important;
-      height: 60px !important; padding: 0 20px !important; border-radius: 100px !important;
-      flex-direction: row; align-items: center; z-index: 9999;
+      position: fixed !important; top: 12px !important; left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 92% !important; max-width: 600px !important; height: 64px !important;
+      padding: 0 16px !important; border-radius: 99px !important;
+      flex-direction: row; align-items: center; justify-content: space-between;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999;
     }
-    .fusion-card.hud .card-body, .fusion-card.hud .small-preview, .fusion-card.hud .greeting-row { display:none !important; }
-    .fusion-card.hud .card-header { margin:0; justify-content: space-between; }
-    .fusion-card.hud .avatar-slot { width:38px; height:38px; }
-    .fusion-card.hud .brand-dual { font-size: 1.1rem; margin:0; }
+    .fusion-card.hud .card-body, .fusion-card.hud .small-preview { display: none !important; }
+    .fusion-card.hud .card-header { margin: 0; width: 100%; justify-content: space-between; }
+    .fusion-card.hud .avatar-slot { width: 40px; height: 40px; }
+    .fusion-card.hud .brand-dual { font-size: 1.2rem; margin:0; }
+    .fusion-card.hud .greeting-row { display:none; } 
+    .fusion-card.hud .text-block { flex: unset; }
 
-    /* UI Internals */
-    .card-header{display:flex;align-items:center;gap:15px;cursor:pointer;transition:transform 0.2s;}
-    .card-header:active{transform:scale(0.97);}
+    /* Internals */
+    .card-header{display:flex;align-items:center;gap:15px;margin-bottom:18px; width:100%; cursor: pointer;}
+    .avatar-slot{width:64px;height:64px;border-radius:18px;overflow:hidden;opacity:0;transition:opacity 0.35s}
+    .avatar-slot.shown{opacity:1}
     
-    .avatar-slot{width:60px;height:60px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)}
-    .text-block{flex:1;display:flex;flex-direction:column}
-    .greeting-row{font-size:1.4rem;font-weight:200;display:flex;gap:5px;line-height:1}
-    .brand-dual{font-size:2rem;font-weight:900;letter-spacing:-1.5px;text-transform:uppercase;background:linear-gradient(to right, #fff, var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .text-block{flex:1;display:flex;flex-direction:column;justify-content:center}
+    .greeting-row{font-size:1.5rem;line-height:1;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+    .txt-thin{font-weight:200;color:rgba(255,255,255,0.7)}
+    .txt-heavy{font-weight:600;color:#fff}
     
-    .clock-widget{text-align:right;opacity:0.6}
-    .time-display{font-family:var(--font-code);font-size:0.9rem;font-weight:700}
-    .status-led{font-size:0.55rem;color:var(--neon-cyan);letter-spacing:1px}
+    .brand-dual{font-size:2.2rem;font-weight:900;line-height:0.95;text-transform:uppercase;letter-spacing:-2px;margin-top:4px;
+      background:linear-gradient(-45deg,#fff,var(--neon-cyan),var(--neon-purple),#fff);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradientFlow 4s ease infinite;
+    }
+    @keyframes gradientFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-    .small-preview{display:none;margin-top:10px;padding:10px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.04);align-items:center;gap:10px;cursor:pointer}
-    .fusion-card.closed .small-preview{display:flex}
+    .clock-widget{text-align:right}
+    .time-display{font-family:var(--font-code);font-size:1rem;color:rgba(255,255,255,0.5);font-weight:700}
+    .status-led{font-size:0.6rem;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:1px;margin-top:4px;display:block}
 
-    /* Content Stagger */
-    .card-body{display:flex;flex-direction:column;gap:12px;opacity:0;transform:translateY(10px);transition:0.4s 0.2s;}
-    .content-visible .card-body{opacity:1;transform:translateY(0);}
+    /* Small Preview */
+    .small-preview{display:none;align-items:center;gap:10px;margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);font-family:var(--font-code);font-size:0.86rem;color:rgba(255,255,255,0.9);cursor:pointer;}
+    .small-preview .mini-avatar{width:30px;height:30px;border-radius:6px;flex-shrink:0;overflow:hidden;display:inline-flex;align-items:center;justify-content:center}
+    .small-preview .small-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 110px)}
+    .small-preview .ident-badge{margin-left:auto;font-weight:700;font-size:0.78rem;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.02)}
+    .fusion-card.closed:not(.orb):not(.hud) .small-preview{display:flex}
+    
+    /* Animations */
+    .vibe-gold{box-shadow:0 0 0px rgba(255,210,80,0.0);animation:vibePulse 1.6s infinite;border:1px solid rgba(255,210,80,0.15)}
+    @keyframes vibePulse{0%{box-shadow:0 0 0 0 rgba(255,210,80,0.0);transform:translateY(0)}40%{box-shadow:0 0 18px 6px rgba(255,210,80,0.06);transform:translateY(-1px) scale(1.01)}100%{box-shadow:0 0 0 0 rgba(255,210,80,0.0);transform:translateY(0)}}
+    
+    .card-body{display:flex;flex-direction:column;gap:12px}
+    .stagger-item{opacity:0;transform:translateY(15px);transition:opacity 0.4s ease, transform 0.4s var(--ease-overshoot)}
+    .content-visible .stagger-item{opacity:1;transform:translateY(0)}
+    .content-visible .stagger-item:nth-child(1){transition-delay:0.1s}
+    .content-visible .stagger-item:nth-child(2){transition-delay:0.18s}
+    .content-visible .stagger-item:nth-child(3){transition-delay:0.25s}
 
-    .cyber-input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:15px;color:#fff;font-family:var(--font-code);font-size:0.9rem}
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .stat-box{background:rgba(255,255,255,0.03);padding:10px;border-radius:12px;text-align:center}
-    .stat-lbl{font-size:0.6rem;opacity:0.4;text-transform:uppercase;display:block}
-    .stat-val{font-family:var(--font-code);font-weight:700;color:var(--neon-cyan)}
+    .cyber-input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px 50px 16px 18px;color:#fff;font-family:var(--font-code);font-size:0.9rem}
+    
+    .activation-wrap{display:flex;flex-direction:column;gap:8px}
+    .activation-card{background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.04);padding:12px;border-radius:10px;overflow:hidden;transition:all 320ms var(--ease-smooth)}
+    .activation-pre{font-family:var(--font-code);white-space:pre-wrap;margin:0;padding:8px;background:rgba(0,0,0,0.12);border-radius:8px;border:1px dashed rgba(255,255,255,0.03);color:#fff;font-size:0.75rem}
+    .activation-hidden{max-height:0;opacity:0;padding:0 12px;pointer-events:none}
+    .activation-open{max-height:400px;opacity:1;padding:12px}
+    
+    .trigger-btn{width:100%;padding:12px;border:1px dashed rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.5);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px}
+    .trigger-btn:hover{background:rgba(255,255,255,0.04);color:#fff;border-color:rgba(255,255,255,0.3)}
+
+    /* Stats & Progress */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+    .stat-box{background:rgba(255,255,255,0.03);border-radius:12px;padding:10px;text-align:center}
+    .stat-lbl{font-size:0.55rem;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:4px}
+    .stat-val{font-family:var(--font-code);font-size:0.9rem;font-weight:700;color:var(--neon-cyan)}
+
+    .progress-container{background:rgba(0,0,0,0.2);padding:12px;border-radius:12px}
+    .bar-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin:8px 0}
+    .bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));box-shadow:0 0 10px var(--neon-cyan);transition:width 1.2s ease-out}
+    .bar-meta{display:flex;justify-content:space-between;font-size:0.6rem;color:rgba(255,255,255,0.4);font-family:var(--font-code)}
+
+    .toaster-wrap{position:fixed;right:20px;bottom:20px;z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+    .toaster{pointer-events:auto;background:linear-gradient(180deg,#0b1220,#071018);border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,0.6);font-family:var(--font-ui);font-size:0.95rem;opacity:0;transform:translateY(8px);transition:all 260ms var(--ease-smooth)}
+    .toaster.show{opacity:1;transform:translateY(0)}
+    .activation-controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+    @media (max-width:420px){ .fusion-card.closed{width:220px} .brand-dual{font-size:1rem} }
   </style>
 </head>
 <body>
-
   <div class="ambient-light"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
 
   <div class="container">
     <div class="fusion-card closed" id="mainCard">
       
-      <div class="card-header" id="cardHeader" title="Clique: Expandir | Segure: Transmutar">
-        <div class="avatar-slot" id="avatarTgt"></div>
+      <div class="card-header" id="cardHeader">
+        <div class="avatar-slot" id="avatarTarget"></div>
         <div class="text-block">
-          <div class="greeting-row"><span>Oi,</span><strong id="displayName">User</strong></div>
+          <div class="greeting-row">
+            <span class="txt-thin" id="lblHello">Oi,</span>
+            <span class="txt-heavy" id="lblName">Convidado</span>
+          </div>
           <div class="brand-dual">DUAL</div>
         </div>
         <div class="clock-widget">
           <div class="time-display" id="clockTime">00:00</div>
-          <span class="status-led">SYSTEM ACTIVE</span>
+          <span class="status-led">ONLINE</span>
         </div>
       </div>
 
-      <div class="small-preview" id="previewArea">
-        <div style="width:24px;height:24px;border-radius:5px;background:var(--neon-cyan);opacity:0.3"></div>
-        <span style="font-size:0.8rem;opacity:0.7">Clique para abrir detalhes...</span>
+      <div class="small-preview" id="smallPreview">
+        <div class="mini-avatar" id="smallMiniAvatar"></div>
+        <div class="small-text" id="smallText">Aguardando ativação...</div>
+        <div class="ident-badge" id="smallIdent">--</div>
       </div>
 
-      <div class="card-body">
-        <input type="text" class="cyber-input" id="userName" placeholder="Mudar identidade..." autocomplete="off">
-        <div class="stats-grid">
-          <div class="stat-box"><span class="stat-lbl">PROCESSOR</span><span class="stat-val">FUSION v9</span></div>
-          <div class="stat-box"><span class="stat-lbl">LATENCY</span><span class="stat-val">0.02ms</span></div>
+      <div class="card-body" id="cardBody">
+        <div class="input-wrapper stagger-item">
+          <input type="text" class="cyber-input" id="inputUser" placeholder="Identifique-se..." autocomplete="off" />
         </div>
-        <div style="font-size:0.6rem;opacity:0.3;text-align:center;letter-spacing:2px">PROJETO GOLD EDITION</div>
+
+        <div class="activation-wrap stagger-item">
+          <div class="activation-toggle" onclick="toggleActivation()">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:10px;height:10px;border-radius:99px;background:var(--neon-cyan)"></div>
+              <strong style="letter-spacing:1px;font-size:0.9rem">Ativação ASCII</strong>
+            </div>
+            <div style="margin-left:auto;font-size:0.82rem;color:rgba(255,255,255,0.6)">BASE v1</div>
+          </div>
+          <div id="activationCard" class="activation-card activation-hidden">
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="mini-avatar" id="actMiniAvatar"></div>
+                <div><div style="font-weight:700">CÉREBRO</div><div style="font-size:0.78rem;opacity:0.6"><span id="actName">User</span></div></div>
+              </div>
+              <div class="activation-badge" id="actBadge" style="margin-left:auto">v:--</div>
+            </div>
+            <pre id="actPre" class="activation-pre">Carregando...</pre>
+            <div class="activation-controls">
+              <button class="trigger-btn" id="copyActBtn">COPIAR</button>
+              <button class="trigger-btn" id="downloadActBtn">PNG</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stagger-item">
+          <div class="stats-grid">
+            <div class="stat-box"><span class="stat-lbl">LATÊNCIA</span><span class="stat-val">12ms</span></div>
+            <div class="stat-box"><span class="stat-lbl">CPU</span><span class="stat-val">FUSION</span></div>
+            <div class="stat-box"><span class="stat-lbl">RITMO</span><span class="stat-val">BETA</span></div>
+          </div>
+          <div class="progress-container" style="margin-top:12px">
+            <div class="bar-meta"><span>CICLO DIÁRIO</span><span id="cyclePercent">0%</span></div>
+            <div class="bar-track"><div class="bar-fill" id="cycleFill"></div></div>
+          </div>
+        </div>
       </div>
 
     </div>
   </div>
 
+  <div class="toaster-wrap" id="toasterWrap"></div>
+
   <script>
-    const card = document.getElementById('mainCard');
-    const header = document.getElementById('cardHeader');
-    const nameInput = document.getElementById('userName');
-    const nameLabel = document.getElementById('displayName');
+    lucide.createIcons();
 
-    // --- LOGICA DE ESTADO ---
-    let isOrb = false;
-    let isHud = false;
-    let pressTimer = null;
-    let startX, startY;
-    let isDragging = false;
+    // ELEMENT REFERENCES
+    const els = {
+      card: document.getElementById('mainCard'),
+      header: document.getElementById('cardHeader'),
+      avatarTgt: document.getElementById('avatarTarget'),
+      input: document.getElementById('inputUser'),
+      lblHello: document.getElementById('lblHello'),
+      lblName: document.getElementById('lblName'),
+      clock: document.getElementById('clockTime'),
+      smallPreview: document.getElementById('smallPreview'),
+      smallMiniAvatar: document.getElementById('smallMiniAvatar'),
+      smallText: document.getElementById('smallText'),
+      smallIdent: document.getElementById('smallIdent'),
+      actCard: document.getElementById('activationCard'),
+      actPre: document.getElementById('actPre'),
+      actName: document.getElementById('actName'),
+      actMiniAvatar: document.getElementById('actMiniAvatar'),
+      actBadge: document.getElementById('actBadge')
+    };
 
-    // --- FUNÇÕES DE TRANSIÇÃO ---
-    function toggleCard() {
-      if(isOrb || isHud) return; // Se for orb/hud o comportamento é outro
-      const isClosed = card.classList.contains('closed');
-      if(isClosed) {
-        card.classList.remove('closed');
-        setTimeout(() => card.classList.add('content-visible'), 50);
-      } else {
-        card.classList.remove('content-visible');
-        card.classList.add('closed');
+    // --- AVATAR & HASH UTILS ---
+    const hashStr = s => { let h=0xdeadbeef; for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),2654435761);} return (h^h>>>16)>>>0; };
+    const createSvg = (id,sz) => `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}"><defs><linearGradient id="g${id}"><stop offset="0%" stop-color="#00f2ff"/><stop offset="100%" stop-color="#bd00ff"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="#080b12" stroke="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="20" fill="url(#g${id})" opacity="0.9"/></svg>`;
+    const createMiniSvg = (name,sz=30) => {
+      const s = hashStr(name||'D'); const h1=s%360; const h2=(s*37)%360;
+      const grad = `<linearGradient id="gm${s}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h1},90%,50%)"/><stop offset="1" stop-color="hsl(${h2},90%,50%)"/></linearGradient>`;
+      return `<svg width="${sz}" height="${sz}" viewBox="0 0 32 32"><defs>${grad}</defs><rect width="32" height="32" rx="8" fill="#0a1016"/><circle cx="16" cy="16" r="6" fill="url(#gm${s})"/></svg>`;
+    }
+
+    els.avatarTgt.innerHTML = createSvg('Main',64);
+
+    // --- LOGIC: UI UPDATE ---
+    function updateInterface(name){
+      const safe = (name && name.trim()) ? name.trim() : 'Convidado';
+      const root = safe === 'Convidado' ? '--' : (safe.length % 9) || 9; // Simplificado
+      
+      els.lblName.innerText = safe;
+      els.smallIdent.innerText = `v:${root}`;
+      els.smallMiniAvatar.innerHTML = createMiniSvg(safe);
+      els.actMiniAvatar.innerHTML = createMiniSvg(safe, 36);
+      els.actName.innerText = safe;
+      
+      const phrases = ["Foco estável.","Ritmo criativo.","Percepção sutil.","Fluxo puro."];
+      els.smallText.innerText = safe === 'Convidado' ? 'Aguardando user...' : `${safe} · ${phrases[safe.length % phrases.length]}`;
+      
+      // ASCII Update
+      const line = `+${'-'.repeat(safe.length+4)}+`;
+      els.actPre.innerText = `${line}\n| ${safe.toUpperCase()} |\n${line}\nID: ${hashStr(safe).toString(16)}`;
+    }
+
+    // --- INTERACTION CORE (DRAG + LONG PRESS + CLICK) ---
+    let state = {
+      isOrb: false,
+      isHud: false,
+      isDragging: false,
+      isLongPress: false,
+      startX: 0, startY: 0,
+      timer: null
+    };
+
+    const LONG_PRESS_MS = 600;
+
+    // Attach to CARD (handles Orb dragging) and HEADER (handles Card interaction)
+    // We attach to Card primarily, but filter targets.
+    els.card.addEventListener('pointerdown', handleStart);
+    document.addEventListener('pointermove', handleMove);
+    document.addEventListener('pointerup', handleEnd);
+
+    function handleStart(e) {
+      // Filter: If card is expanded, only header allows drag/close.
+      // If card is inputting text, ignore.
+      if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+      
+      const isExpanded = !els.card.classList.contains('closed') && !state.isOrb && !state.isHud;
+      // If expanded, only header starts interaction
+      if(isExpanded && !els.header.contains(e.target)) return;
+
+      state.startX = e.clientX;
+      state.startY = e.clientY;
+      state.isDragging = false;
+      state.isLongPress = false;
+
+      // Start Long Press Timer
+      state.timer = setTimeout(() => {
+        // TRIGGER LONG PRESS
+        state.isLongPress = true;
+        if(!state.isOrb && !state.isHud){
+          transmuteToOrb(e.clientX, e.clientY);
+        }
+      }, LONG_PRESS_MS);
+
+      // If already Orb, prepare drag immediately
+      if(state.isOrb) {
+         els.card.setPointerCapture(e.pointerId);
+         // Calculate offset to prevent jump
+         const rect = els.card.getBoundingClientRect();
+         state.offsetX = e.clientX - rect.left;
+         state.offsetY = e.clientY - rect.top;
       }
     }
 
-    function transmuteToOrb(x, y) {
-      isOrb = true;
-      isHud = false;
-      card.classList.add('orb', 'closed');
-      card.classList.remove('content-visible', 'hud');
+    function handleMove(e) {
+      if(!state.timer && !state.isOrb) return; // Optimization
+
+      // Detect Drag Distance
+      const dist = Math.hypot(e.clientX - state.startX, e.clientY - state.startY);
       
-      // Posiciona no centro do toque
-      card.style.position = 'fixed';
-      card.style.left = (x - 35) + 'px';
-      card.style.top = (y - 35) + 'px';
-      
-      if(navigator.vibrate) navigator.vibrate(40);
-      console.log("Transmutado para Orb");
-    }
-
-    function resetToCard() {
-      isOrb = false;
-      isHud = false;
-      card.classList.remove('orb', 'hud', 'closed');
-      card.style.position = '';
-      card.style.left = ''; card.style.top = ''; card.style.transform = '';
-      setTimeout(() => card.classList.add('content-visible'), 50);
-      console.log("Sistema Restaurado");
-    }
-
-    // --- GESTOS (HEADER & CARD) ---
-    header.addEventListener('pointerdown', (e) => {
-      startX = e.clientX;
-      startY = e.clientY;
-      isDragging = false;
-
-      // Inicia contador para Long Press
-      pressTimer = setTimeout(() => {
-        if(!isOrb) transmuteToOrb(e.clientX, e.clientY);
-      }, 600);
-    });
-
-    // Se estiver no modo Orb, permite o drag global
-    document.addEventListener('pointermove', (e) => {
-      if(!isOrb) {
-        // Se mover muito enquanto tenta expandir, cancela o timer do long press
-        if(pressTimer && Math.hypot(e.clientX - startX, e.clientY - startY) > 10) {
-          clearTimeout(pressTimer);
-          pressTimer = null;
+      if(dist > 8) {
+        if(state.timer) { clearTimeout(state.timer); state.timer = null; }
+        
+        // If Orb, actually move
+        if(state.isOrb) {
+          state.isDragging = true;
+          e.preventDefault();
+          els.card.style.left = (e.clientX - state.offsetX) + 'px';
+          els.card.style.top = (e.clientY - state.offsetY) + 'px';
+          els.card.style.transform = 'none';
         }
+      }
+    }
+
+    function handleEnd(e) {
+      if(state.timer) { clearTimeout(state.timer); state.timer = null; }
+
+      if(state.isLongPress) {
+        // Interaction already handled by timer execution
+        state.isLongPress = false;
+        if(state.isOrb) snapOrb(e.clientX, e.clientY); // Snap after long press creation drag
         return;
       }
 
-      // Drag do Orb
-      isDragging = true;
-      e.preventDefault();
-      card.style.left = (e.clientX - 35) + 'px';
-      card.style.top = (e.clientY - 35) + 'px';
-      card.style.transform = 'none';
-    });
+      if(state.isDragging && state.isOrb) {
+        state.isDragging = false;
+        snapOrb(e.clientX, e.clientY);
+        return;
+      }
 
-    document.addEventListener('pointerup', (e) => {
-      if(pressTimer) clearTimeout(pressTimer);
-      
-      const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
-      
-      if(dist < 10) { 
-        // FOI UM CLIQUE
-        if(isOrb || isHud) {
-          resetToCard();
+      // CLICK INTERPRETATION (No Drag, No Long Press)
+      // Check if we released reasonably close to start
+      const dist = Math.hypot(e.clientX - state.startX, e.clientY - state.startY);
+      if(dist < 8) {
+        // Logic: Click
+        if(state.isOrb || state.isHud) {
+          revertToCard();
         } else {
-          // Se clicou no header, abre/fecha sanfona
-          if(header.contains(e.target) || document.getElementById('previewArea').contains(e.target)) {
-             toggleCard();
-          }
-        }
-      } else if(isOrb) {
-        // FOI UM ARRASTO NO MODO ORB
-        if(e.clientY < 80) {
-          // Vira HUD
-          isHud = true; isOrb = false;
-          card.classList.remove('orb');
-          card.classList.add('hud');
-          card.style.left = ''; card.style.top = '';
-          if(navigator.vibrate) navigator.vibrate([30, 30]);
+          toggleCardState();
         }
       }
-    });
+    }
 
-    // --- AUXILIARES ---
-    nameInput.addEventListener('input', (e) => {
-      nameLabel.innerText = e.target.value || 'User';
-    });
+    // --- TRANSITIONS ---
 
-    setInterval(() => {
-      const d = new Date();
-      document.getElementById('clockTime').innerText = d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+    function transmuteToOrb(x, y) {
+      if(navigator.vibrate) navigator.vibrate(50);
+      speak("Modo Orb.");
+      
+      // Visual Setup
+      els.card.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      els.card.classList.add('orb', 'closed');
+      els.card.classList.remove('content-visible');
+      
+      // Position at mouse (centered)
+      els.card.style.left = (x - 34) + 'px';
+      els.card.style.top = (y - 34) + 'px';
+      
+      state.isOrb = true;
+      state.isHud = false;
+    }
+
+    function snapOrb(x, y) {
+      // HUD Zone (Top 10%)
+      if(y < 80) {
+        state.isHud = true;
+        state.isOrb = false;
+        els.card.classList.add('hud');
+        els.card.classList.remove('orb');
+        els.card.style.left = ''; els.card.style.top = ''; els.card.style.transform = '';
+        speak("Interface acoplada.");
+      } else {
+        // Side Snap
+        const winW = window.innerWidth;
+        const targetX = x < winW/2 ? 15 : winW - 83;
+        
+        els.card.style.transition = 'left 0.4s ease, top 0.4s ease';
+        els.card.style.left = targetX + 'px';
+        
+        // Remove transition after animation to allow fast drag later
+        setTimeout(() => els.card.style.transition = '', 400);
+      }
+    }
+
+    function revertToCard() {
+      state.isOrb = false;
+      state.isHud = false;
+      
+      // Reset inline styles from drag
+      els.card.style.transition = 'all 0.5s var(--ease-smooth)';
+      els.card.style.left = ''; els.card.style.top = ''; 
+      els.card.style.width = ''; els.card.style.height = ''; els.card.style.transform = '';
+      
+      els.card.classList.remove('orb', 'hud');
+      // Decide if opens fully or just closed card. Let's go fully open for "Boom" effect
+      els.card.classList.remove('closed');
+      setTimeout(()=> els.card.classList.add('content-visible'), 300);
+      speak("Expandindo.");
+    }
+
+    function toggleCardState() {
+      // If animating, ignore
+      if(els.card.classList.contains('animating')) return;
+
+      const isClosed = els.card.classList.contains('closed');
+      els.card.classList.add('animating');
+
+      if(isClosed) {
+        // OPEN
+        els.card.classList.remove('closed');
+        // Simple scale animation via Web Animations API for smoothness
+        els.card.animate([
+          { transform: 'scale(0.95)', opacity: 0.8 },
+          { transform: 'scale(1)', opacity: 1 }
+        ], { duration: 400, easing: 'cubic-bezier(0.34, 1.3, 0.64, 1)' })
+        .onfinish = () => {
+          els.card.classList.remove('animating');
+          els.card.classList.add('content-visible');
+          if(window.innerWidth > 500) els.input.focus();
+        };
+      } else {
+        // CLOSE
+        els.card.classList.remove('content-visible');
+        els.card.animate([
+          { transform: 'translateY(0)', opacity: 1 },
+          { transform: 'translateY(10px)', opacity: 1 } // Subtle drop
+        ], { duration: 200, easing: 'ease-in' })
+        .onfinish = () => {
+          els.card.classList.add('closed');
+          els.card.classList.remove('animating');
+        };
+      }
+    }
+
+    // --- OTHER UTILS ---
+    function toggleActivation(){
+      const hidden = els.actCard.classList.contains('activation-hidden');
+      els.actCard.classList.toggle('activation-hidden', !hidden);
+      els.actCard.classList.toggle('activation-open', hidden);
+    }
+
+    function speak(txt){
+      if(window.speechSynthesis){
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(txt); u.lang='pt-BR'; u.rate=1.2;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    // Input Logic
+    els.input.addEventListener('input', (e) => updateInterface(e.target.value));
+    
+    // Copy/Download (Simulated)
+    document.getElementById('copyActBtn').addEventListener('click', ()=>{
+      navigator.clipboard.writeText(els.actPre.innerText);
+      showToaster("Copiado com sucesso.");
+    });
+    
+    function showToaster(txt){
+      const t = document.createElement('div'); t.className='toaster'; t.innerText=txt;
+      document.getElementById('toasterWrap').appendChild(t);
+      setTimeout(()=>t.classList.add('show'),10);
+      setTimeout(()=>{t.classList.remove('show'); setTimeout(()=>t.remove(),300)}, 2500);
+    }
+
+    // Init Animation
+    setTimeout(()=>{ els.card.classList.add('active'); els.avatarTgt.classList.add('shown'); }, 100);
+    // Clock
+    setInterval(()=>{ 
+      const now = new Date();
+      els.clock.innerText = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const pct = (now.getSeconds() / 60) * 100;
+      document.getElementById('cycleFill').style.width = pct+'%';
+      document.getElementById('cyclePercent').innerText = Math.floor(pct)+'%';
     }, 1000);
-
-    // Avatar inicial
-    document.getElementById('avatarTgt').innerHTML = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--neon-cyan)" stroke-width="2"/><circle cx="50" cy="50" r="15" fill="var(--neon-cyan)"/></svg>`;
 
   </script>
 </body>
