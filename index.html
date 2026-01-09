@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>DUAL // FUSION OS — V99.2 Platinum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="./manifest" href="manifest.json">
+<meta name="theme-color" content="#05070a">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker Registered'));
+  }
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    :root{
+      --bg-deep:#030406; --glass-surface:rgba(18,18,22,0.7); --glass-border:rgba(255,255,255,0.06);
+      --neon-cyan:#00f2ff; --neon-purple:#bd00ff;
+      --font-ui:'Montserrat',sans-serif; --font-code:'JetBrains Mono',monospace;
+      --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none;user-select:none}
+    
+    body{margin:0;padding:0;min-height:100vh;background-color:var(--bg-deep);color:#fff;
+      font-family:var(--font-ui);overflow:hidden;
+      background-image:radial-gradient(circle at 50% 50%, rgba(0,242,255,0.03) 0%, transparent 80%);
+    }
+
+    /* Ambient */
+    .ambient-light{position:fixed;inset:0;z-index:0;pointer-events:none}
+    .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:float 20s infinite alternate ease-in-out}
+    .blob-1{width:50vw;height:50vw;background:var(--neon-cyan);top:-10%;left:-10%}
+    .blob-2{width:40vw;height:40vw;background:var(--neon-purple);bottom:-10%;right:-10%}
+    @keyframes float{0%{transform:translate(0,0)}100%{transform:translate(30px,50px)}}
+
+    /* Main Card */
+    .container{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;pointer-events:none}
+    
+    .fusion-card{
+      pointer-events:auto; width:100%; max-width:420px;
+      background:var(--glass-surface); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
+      border:1px solid var(--glass-border); border-radius:32px; padding:25px;
+      box-shadow:0 30px 80px rgba(0,0,0,0.8);
+      display:flex; flex-direction:column; gap:10px;
+      transition: all 0.5s var(--ease-smooth);
+      will-change: transform, width, height, opacity;
+      touch-action: none;
+    }
+
+    /* Estados de Transmutação */
+    .fusion-card.closed { width:280px; padding:15px; border-radius:24px; }
+    .fusion-card.closed .card-body { display:none; }
+    
+    .fusion-card.orb {
+      position: fixed !important; width: 70px !important; height: 70px !important;
+      padding: 0 !important; border-radius: 50% !important;
+      justify-content: center; align-items: center; cursor: grab;
+      box-shadow: 0 0 30px rgba(0,242,255,0.3); z-index: 9999;
+    }
+    .fusion-card.orb .card-body, .fusion-card.orb .small-preview, .fusion-card.orb .text-block, .fusion-card.orb .clock-widget { display: none !important; }
+    .fusion-card.orb .card-header { margin:0; padding:0; width:100%; height:100%; justify-content:center; }
+    .fusion-card.orb .avatar-slot { width:56px; height:56px; border-radius:50%; margin:0; }
+
+    .fusion-card.hud {
+      position: fixed !important; top: 15px !important; left: 50% !important;
+      transform: translateX(-50%) !important; width: 90% !important; max-width: 550px !important;
+      height: 60px !important; padding: 0 20px !important; border-radius: 100px !important;
+      flex-direction: row; align-items: center; z-index: 9999;
+    }
+    .fusion-card.hud .card-body, .fusion-card.hud .small-preview, .fusion-card.hud .greeting-row { display:none !important; }
+    .fusion-card.hud .card-header { margin:0; justify-content: space-between; }
+    .fusion-card.hud .avatar-slot { width:38px; height:38px; }
+    .fusion-card.hud .brand-dual { font-size: 1.1rem; margin:0; }
+
+    /* UI Internals */
+    .card-header{display:flex;align-items:center;gap:15px;cursor:pointer;transition:transform 0.2s;}
+    .card-header:active{transform:scale(0.97);}
+    
+    .avatar-slot{width:60px;height:60px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)}
+    .text-block{flex:1;display:flex;flex-direction:column}
+    .greeting-row{font-size:1.4rem;font-weight:200;display:flex;gap:5px;line-height:1}
+    .brand-dual{font-size:2rem;font-weight:900;letter-spacing:-1.5px;text-transform:uppercase;background:linear-gradient(to right, #fff, var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    
+    .clock-widget{text-align:right;opacity:0.6}
+    .time-display{font-family:var(--font-code);font-size:0.9rem;font-weight:700}
+    .status-led{font-size:0.55rem;color:var(--neon-cyan);letter-spacing:1px}
+
+    .small-preview{display:none;margin-top:10px;padding:10px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.04);align-items:center;gap:10px;cursor:pointer}
+    .fusion-card.closed .small-preview{display:flex}
+
+    /* Content Stagger */
+    .card-body{display:flex;flex-direction:column;gap:12px;opacity:0;transform:translateY(10px);transition:0.4s 0.2s;}
+    .content-visible .card-body{opacity:1;transform:translateY(0);}
+
+    .cyber-input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:15px;color:#fff;font-family:var(--font-code);font-size:0.9rem}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat-box{background:rgba(255,255,255,0.03);padding:10px;border-radius:12px;text-align:center}
+    .stat-lbl{font-size:0.6rem;opacity:0.4;text-transform:uppercase;display:block}
+    .stat-val{font-family:var(--font-code);font-weight:700;color:var(--neon-cyan)}
+  </style>
+</head>
+<body>
+
+  <div class="ambient-light"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+  <div class="container">
+    <div class="fusion-card closed" id="mainCard">
+      
+      <div class="card-header" id="cardHeader" title="Clique: Expandir | Segure: Transmutar">
+        <div class="avatar-slot" id="avatarTgt"></div>
+        <div class="text-block">
+          <div class="greeting-row"><span>Oi,</span><strong id="displayName">User</strong></div>
+          <div class="brand-dual">DUAL</div>
+        </div>
+        <div class="clock-widget">
+          <div class="time-display" id="clockTime">00:00</div>
+          <span class="status-led">SYSTEM ACTIVE</span>
+        </div>
+      </div>
+
+      <div class="small-preview" id="previewArea">
+        <div style="width:24px;height:24px;border-radius:5px;background:var(--neon-cyan);opacity:0.3"></div>
+        <span style="font-size:0.8rem;opacity:0.7">Clique para abrir detalhes...</span>
+      </div>
+
+      <div class="card-body">
+        <input type="text" class="cyber-input" id="userName" placeholder="Mudar identidade..." autocomplete="off">
+        <div class="stats-grid">
+          <div class="stat-box"><span class="stat-lbl">PROCESSOR</span><span class="stat-val">FUSION v9</span></div>
+          <div class="stat-box"><span class="stat-lbl">LATENCY</span><span class="stat-val">0.02ms</span></div>
+        </div>
+        <div style="font-size:0.6rem;opacity:0.3;text-align:center;letter-spacing:2px">PROJETO GOLD EDITION</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('mainCard');
+    const header = document.getElementById('cardHeader');
+    const nameInput = document.getElementById('userName');
+    const nameLabel = document.getElementById('displayName');
+
+    // --- LOGICA DE ESTADO ---
+    let isOrb = false;
+    let isHud = false;
+    let pressTimer = null;
+    let startX, startY;
+    let isDragging = false;
+
+    // --- FUNÇÕES DE TRANSIÇÃO ---
+    function toggleCard() {
+      if(isOrb || isHud) return; // Se for orb/hud o comportamento é outro
+      const isClosed = card.classList.contains('closed');
+      if(isClosed) {
+        card.classList.remove('closed');
+        setTimeout(() => card.classList.add('content-visible'), 50);
+      } else {
+        card.classList.remove('content-visible');
+        card.classList.add('closed');
+      }
+    }
+
+    function transmuteToOrb(x, y) {
+      isOrb = true;
+      isHud = false;
+      card.classList.add('orb', 'closed');
+      card.classList.remove('content-visible', 'hud');
+      
+      // Posiciona no centro do toque
+      card.style.position = 'fixed';
+      card.style.left = (x - 35) + 'px';
+      card.style.top = (y - 35) + 'px';
+      
+      if(navigator.vibrate) navigator.vibrate(40);
+      console.log("Transmutado para Orb");
+    }
+
+    function resetToCard() {
+      isOrb = false;
+      isHud = false;
+      card.classList.remove('orb', 'hud', 'closed');
+      card.style.position = '';
+      card.style.left = ''; card.style.top = ''; card.style.transform = '';
+      setTimeout(() => card.classList.add('content-visible'), 50);
+      console.log("Sistema Restaurado");
+    }
+
+    // --- GESTOS (HEADER & CARD) ---
+    header.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+      isDragging = false;
+
+      // Inicia contador para Long Press
+      pressTimer = setTimeout(() => {
+        if(!isOrb) transmuteToOrb(e.clientX, e.clientY);
+      }, 600);
+    });
+
+    // Se estiver no modo Orb, permite o drag global
+    document.addEventListener('pointermove', (e) => {
+      if(!isOrb) {
+        // Se mover muito enquanto tenta expandir, cancela o timer do long press
+        if(pressTimer && Math.hypot(e.clientX - startX, e.clientY - startY) > 10) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+        return;
+      }
+
+      // Drag do Orb
+      isDragging = true;
+      e.preventDefault();
+      card.style.left = (e.clientX - 35) + 'px';
+      card.style.top = (e.clientY - 35) + 'px';
+      card.style.transform = 'none';
+    });
+
+    document.addEventListener('pointerup', (e) => {
+      if(pressTimer) clearTimeout(pressTimer);
+      
+      const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
+      
+      if(dist < 10) { 
+        // FOI UM CLIQUE
+        if(isOrb || isHud) {
+          resetToCard();
+        } else {
+          // Se clicou no header, abre/fecha sanfona
+          if(header.contains(e.target) || document.getElementById('previewArea').contains(e.target)) {
+             toggleCard();
+          }
+        }
+      } else if(isOrb) {
+        // FOI UM ARRASTO NO MODO ORB
+        if(e.clientY < 80) {
+          // Vira HUD
+          isHud = true; isOrb = false;
+          card.classList.remove('orb');
+          card.classList.add('hud');
+          card.style.left = ''; card.style.top = '';
+          if(navigator.vibrate) navigator.vibrate([30, 30]);
+        }
+      }
+    });
+
+    // --- AUXILIARES ---
+    nameInput.addEventListener('input', (e) => {
+      nameLabel.innerText = e.target.value || 'User';
+    });
+
+    setInterval(() => {
+      const d = new Date();
+      document.getElementById('clockTime').innerText = d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+    }, 1000);
+
+    // Avatar inicial
+    document.getElementById('avatarTgt').innerHTML = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--neon-cyan)" stroke-width="2"/><circle cx="50" cy="50" r="15" fill="var(--neon-cyan)"/></svg>`;
+
+  </script>
+</body>
+</html>
