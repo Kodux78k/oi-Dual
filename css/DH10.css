@@ -1,0 +1,115 @@
+:root {
+    --bg-blur: rgba(10, 12, 20, 0.75);
+    --card-bg: rgba(20, 22, 32, 0.85);
+    --text: #f0f3f9;
+    --muted: rgba(255, 255, 255, 0.45);
+    --accent: #32d7cb;
+    --danger: #ff5e5e;
+    --border: rgba(255, 255, 255, 0.1);
+  }
+
+  html, body { 
+    height: 100%; margin: 0; padding: 0; color: var(--text); 
+    background:rgba(0,0,0,0);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: auto;
+  }
+  
+  .wrap { width: 100%; min-height: 100vh; height: 100%;display: flex; flex-direction: column; }
+  iframe#frame { width: 100%; min-height: 100vh;height: 100%; border: 0; border-radius:8px;transition: opacity .3s; }
+
+  /* Barra de Símbolos */
+  .symbol-bar {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-blur);
+    backdrop-filter: blur(15px) saturate(160%);
+    -webkit-backdrop-filter: blur(15px) saturate(160%);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: 
+      opacity 0.8s ease, 
+      left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      border-radius 0.3s ease,
+      padding 0.3s ease;
+    user-select: none;
+    touch-action: none;
+    opacity: 1;
+  }
+
+  /* Estado Inativo */
+  .symbol-bar.idle { opacity: 0.15; }
+  .symbol-bar.idle:hover { opacity: 1; }
+
+  /* Variações de Snap */
+  .symbol-bar.snap-side { flex-direction: column; border-radius: 0 20px 20px 0; border-left: 0; }
+  .symbol-bar.snap-side-right { flex-direction: column; border-radius: 20px 0 0 20px; border-right: 0; }
+  
+  /* Snap Topo: Centralizado e Horizontal */
+  .symbol-bar.snap-top { 
+    flex-direction: row; 
+    border-radius: 0 0 20px 20px; 
+    border-top: 0; 
+    align-items: center;
+    justify-content: center;
+  }
+
+  .symbol-bar.floating { flex-direction: column; border-radius: 24px; }
+
+  /* Botões */
+  .symbol-button {
+    width: 28px; height: 28px; border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    background: var(--card-bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  
+  .symbol-button:active { transform: scale(0.9); }
+  .symbol-button.toggle { 
+    background: linear-gradient(135deg, #1a1d29, #0f111a);
+    color: var(--accent);
+    border-color: rgba(50, 215, 203, 0.4);
+    font-weight: bold;
+  }
+
+  /* Recolhimento */
+  .symbol-bar.collapsed .symbol-wrap { 
+    width: 0; height: 0; margin: 0; opacity: 0; pointer-events: none; transform: scale(0);
+  }
+  .symbol-bar.collapsed.snap-side, .symbol-bar.collapsed.snap-side-right { padding: 10px 5px; }
+  .symbol-bar.collapsed.snap-top { padding: 5px 10px; }
+
+  .symbol-wrap {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+ /* .hint { font-size: 9px; color: var(--muted); text-transform: uppercase; margin-top: 4px; pointer-events: none; text-align: center; display:none;}*/
+  .symbol-bar.snap-top .hint { display: none; }
+  .symbol-bar.snap-top .toggle-wrap { margin-bottom: 0; margin-right: 4px; }
+
+  /* Lixeira */
+  .trash {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) scale(0.8);
+    width: 60px; height: 60px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 60, 60, 0.2);
+    color: var(--danger);
+    border: 2px dashed var(--danger);
+    z-index: 10001; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+  }
+  .trash.visible { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+  .trash.over { background: var(--danger); color: white; transform: translateX(-50%) scale(1.2); }
+
+  .edit-mode { outline: 2px dashed var(--accent); outline-offset: 4px; }
