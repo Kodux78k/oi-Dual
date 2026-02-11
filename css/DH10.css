@@ -9,8 +9,8 @@
   }
 
   html, body { 
-    height: 100%; margin: 0; padding: 0; color: var(--text); 
-    background:rgba(0,0,0,0);
+    height: 100%; margin: 0; padding: 0 2px 16px; color: var(--text); 
+    /*background:rgba(0,0,0,0);*/
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     overflow: auto;
   }
