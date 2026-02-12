@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>HUB DUAL — 12 Archetypes</title>
+  <meta name="theme-color" content="#050811">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  
+  
+
+  
+<link rel="stylesheet" href=".mkodux78k.github.io/oi-Dual/css/HubUno/mainUno.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"><meta name="theme-color" content="#050811"></head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+  <div id="arch-overlay"></div>
+  <div id="vignette"></div>
+
+  <header class="mast-header">
+    <div style="font-weight:800; letter-spacing:1px">HUB UNO</div>
+    <button class="btn-icon" onclick="UNO.UI.toggleHeader(false)"><i data-lucide="x"></i></button>
+  </header>
+
+  <main>
+    
+    <section id="v-home" class="view active">
+      
+      <div class="arch-display">
+        <div class="arch-symbol" id="displaySymbol">♔</div>
+        <div class="arch-name" id="displayName">ATLAS</div>
+        <div style="font-size:0.8rem; opacity:0.7; margin-top:4px; font-family:'JetBrains Mono'">SYSTEM CORE</div>
+      </div>
+
+      <div class="arch-selector-row" id="archListRow">
+        </div>
+
+      <div class="card" style="margin-top:20px; display:flex; align-items:center; gap:16px;">
+        <div style="width:10px; height:10px; background:var(--arch-color); border-radius:50%; box-shadow:0 0 10px var(--arch-color)"></div>
+        <div>
+          <div style="font-weight:700; font-size:0.9rem">Resonância Ativa</div>
+          <div style="font-size:0.75rem; opacity:0.6" id="displayAssistants">Carregando...</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; opacity:0.6">Quick Actions</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+          <button class="btn-icon" style="width:100%" onclick="UNO.UI.nav('apps')">
+            <i data-lucide="grid"></i> <span style="margin-left:8px; font-size:0.9rem">Apps</span>
+          </button>
+          <button class="btn-icon" style="width:100%" onclick="UNO.UI.nav('chat')">
+            <i data-lucide="message-circle"></i> <span style="margin-left:8px; font-size:0.9rem">Chat</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="v-apps" class="view">
+      <h2 style="margin:0">Biblioteca</h2>
+      <div class="card">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px">
+          <div class="btn-icon"><i data-lucide="book-open"></i></div>
+          <div><strong>Notas</strong><br><small>Sistema Local</small></div>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center">
+          <div class="btn-icon"><i data-lucide="calculator"></i></div>
+          <div><strong>Calc</strong><br><small>Ferramentas</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="v-brain" class="view">
+      <h2 style="margin:0">Cérebro</h2>
+      <div class="card">
+        <label style="font-size:0.8rem; opacity:0.7">Nome do Usuário</label>
+        <input id="cfgName" class="glass-input" placeholder="Viajante..." style="margin-bottom:12px">
+        
+        <label style="font-size:0.8rem; opacity:0.7">API Key (OpenRouter/OpenAI)</label>
+        <input id="cfgKey" type="password" class="glass-input" placeholder="sk-...">
+        
+        <button class="btn-icon" style="width:100%; margin-top:16px; background:var(--primary); color:#000; font-weight:700" id="btnSaveBrain">
+          SALVAR DADOS
+        </button>
+      </div>
+      
+      <div class="card" style="margin-top:10px">
+        <label style="display:flex; align-items:center; justify-content:space-between">
+          <span>Mostrar Header</span>
+          <input type="checkbox" onchange="UNO.UI.toggleHeader(this.checked)">
+        </label>
+      </div>
+    </section>
+    
+    <section id="v-chat" class="view">
+      <div id="chat-container" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+        <div class="card" style="background:rgba(255,255,255,0.05); align-self:flex-start; max-width:80%">
+          Olá. Aguardando input.
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:auto">
+        <input class="glass-input" placeholder="Mensagem..." id="chatInput">
+        <button class="btn-icon" id="btnSendChat"><i data-lucide="send"></i></button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" onclick="UNO.UI.nav('home')" data-target="home"><i data-lucide="home"></i></button>
+    <button class="tab-btn" onclick="UNO.UI.nav('apps')" data-target="apps"><i data-lucide="grid"></i></button>
+    <button class="tab-btn" onclick="UNO.UI.nav('chat')" data-target="chat"><i data-lucide="message-square"></i></button>
+    <button class="tab-btn" onclick="UNO.UI.nav('brain')" data-target="brain"><i data-lucide="cpu"></i></button>
+  </nav>
+
+  
+
+
+<script type="module" src="./js/main.js"></script>
+
+  <canvas id="bg-canvas"></canvas>
+  <div id="arch-overlay"></div>
+  <div id="vignette"></div>
+
+  <header class="mast-header">
+    <div style="font-weight:800; letter-spacing:1px">HUB UNO</div>
+    <button class="btn-icon" onclick="UNO.UI.toggleHeader(false)"><i data-lucide="x"></i></button>
+  </header>
+
+  <main>
+    
+    <section id="v-home" class="view active">
+      
+      <div class="arch-display">
+        <div class="arch-symbol" id="displaySymbol">♔</div>
+        <div class="arch-name" id="displayName">ATLAS</div>
+        <div style="font-size:0.8rem; opacity:0.7; margin-top:4px; font-family:'JetBrains Mono'">SYSTEM CORE</div>
+      </div>
+
+      <div class="arch-selector-row" id="archListRow">
+        </div>
+
+      <div class="card" style="margin-top:20px; display:flex; align-items:center; gap:16px;">
+        <div style="width:10px; height:10px; background:var(--arch-color); border-radius:50%; box-shadow:0 0 10px var(--arch-color)"></div>
+        <div>
+          <div style="font-weight:700; font-size:0.9rem">Resonância Ativa</div>
+          <div style="font-size:0.75rem; opacity:0.6" id="displayAssistants">Carregando...</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; opacity:0.6">Quick Actions</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+          <button class="btn-icon" style="width:100%" onclick="UNO.UI.nav('apps')">
+            <i data-lucide="grid"></i> <span style="margin-left:8px; font-size:0.9rem">Apps</span>
+          </button>
+          <button class="btn-icon" style="width:100%" onclick="UNO.UI.nav('chat')">
+            <i data-lucide="message-circle"></i> <span style="margin-left:8px; font-size:0.9rem">Chat</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="v-apps" class="view">
+      <h2 style="margin:0">Biblioteca</h2>
+      <div class="card">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px">
+          <div class="btn-icon"><i data-lucide="book-open"></i></div>
+          <div><strong>Notas</strong><br><small>Sistema Local</small></div>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center">
+          <div class="btn-icon"><i data-lucide="calculator"></i></div>
+          <div><strong>Calc</strong><br><small>Ferramentas</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="v-brain" class="view">
+      <h2 style="margin:0">Cérebro</h2>
+      <div class="card">
+        <label style="font-size:0.8rem; opacity:0.7">Nome do Usuário</label>
+        <input id="cfgName" class="glass-input" placeholder="Viajante..." style="margin-bottom:12px">
+        
+        <label style="font-size:0.8rem; opacity:0.7">API Key (OpenRouter/OpenAI)</label>
+        <input id="cfgKey" type="password" class="glass-input" placeholder="sk-...">
+        
+        <button class="btn-icon" style="width:100%; margin-top:16px; background:var(--primary); color:#000; font-weight:700" id="btnSaveBrain">
+          SALVAR DADOS
+        </button>
+      </div>
+      
+      <div class="card" style="margin-top:10px">
+        <label style="display:flex; align-items:center; justify-content:space-between">
+          <span>Mostrar Header</span>
+          <input type="checkbox" onchange="UNO.UI.toggleHeader(this.checked)">
+        </label>
+      </div>
+    </section>
+    
+    <section id="v-chat" class="view">
+      <div id="chat-container" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+        <div class="card" style="background:rgba(255,255,255,0.05); align-self:flex-start; max-width:80%">
+          Olá. Aguardando input.
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:auto">
+        <input class="glass-input" placeholder="Mensagem..." id="chatInput">
+        <button class="btn-icon" id="btnSendChat"><i data-lucide="send"></i></button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" onclick="UNO.UI.nav('home')" data-target="home"><i data-lucide="home"></i></button>
+    <button class="tab-btn" onclick="UNO.UI.nav('apps')" data-target="apps"><i data-lucide="grid"></i></button>
+    <button class="tab-btn" onclick="UNO.UI.nav('chat')" data-target="chat"><i data-lucide="message-square"></i></button>
+    <button class="tab-btn" onclick="UNO.UI.nav('brain')" data-target="brain"><i data-lucide="cpu"></i></button>
+  </nav>
+
+  
+
+
+<script type="module" src="./js/main.js"></script><script type="module" src="https://kodux78k.github.io/oi-Dual/js/Unomain.js"></script></body></html>
