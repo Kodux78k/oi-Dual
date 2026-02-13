@@ -1,0 +1,219 @@
+/* =========================================
+   1. CORE CSS - BASE, VARS & ATMOSPHERE
+   ========================================= */
+:root {
+  /* Cores Base & Solar */
+  --bg-deep: #030406;
+  --bg-day: radial-gradient(circle at 30% 20%, #ffffff 0%, #f2f8ff 18%, #d0e9ff 40%, #9ed0ff 65%, #6bb9ff 85%, #59a8ff 100%);
+  --bg-sunset: linear-gradient(180deg, #fbcfe8 0%, #fb923c 20%, #4c1d95 60%, #111827 100%);
+  --bg-night: radial-gradient(circle at 20% 0%, #0b1020 0%, #121c3b 40%, #1a237e 80%, #000000 100%);
+  --bg-panel: rgba(10, 14, 24, 0.95);
+
+  /* Neon Cyber */
+  --primary: #00f5ff;    /* Cyan */
+  --secondary: #bd00ff;  /* Purple */
+  --accent: #39ffb6;     /* Green */
+  --danger: #ff2a6d;
+  --success: #00ff9d;
+  
+  /* Textos */
+  --text-main: #e4ecff;
+  --text-muted: #9aa4c8;
+  --font-ui: 'Montserrat', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+
+  /* Glass & Fusion */
+  --glass-surface: rgba(18, 18, 22, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-overshoot: cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+/* Reset Global */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; width: 100%;
+  background: var(--bg-deep); color: var(--text-main);
+  font-family: var(--font-ui);
+  overflow: hidden; /* Trava o scroll global para o drag funcionar perfeito */
+  transition: background 0.8s var(--ease-smooth), color 0.8s var(--ease-smooth);
+}
+
+/* Solar Modes Overrides */
+body.mode-day { background: var(--bg-day) !important; color: #1a1a1a !important; }
+body.mode-sunset { background: var(--bg-sunset) !important; color: #fff !important; }
+body.mode-night { background: var(--bg-night) !important; color: var(--text-main) !important; }
+
+/* Background Elements (Z-index: 0 to 5) */
+.ambient-light, .sky-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#particles-js { position: fixed; inset: 0; z-index: 1; opacity: 0.3; pointer-events: none; }
+body.mode-day #particles-js { opacity: 0.1; }
+
+.blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.14; animation: floatBlob 25s infinite alternate ease-in-out; }
+.blob-1 { width: 60vw; height: 60vw; background: var(--primary); top: -20%; left: -20%; }
+.blob-2 { width: 50vw; height: 50vw; background: var(--secondary); bottom: -20%; right: -20%; animation-delay: -5s; }
+
+.sun-background { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fffde7 0%, #fff176 40%, #ffb300 100%); filter: blur(60px); opacity: 0; transition: opacity 2s; animation: sun-orbit 60s linear infinite; }
+body.mode-day .sun-background { opacity: 0.5; }
+
+/* Animações Globais */
+@keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(40px,60px); } }
+@keyframes sun-orbit { 0% { transform: translate(-20vw, 10vh); } 50% { transform: translate(80vw, -10vh); } 100% { transform: translate(-20vw, 10vh); } }
+@keyframes gradientFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   2. APP CSS - CHAT, VIEWS & INPUTS
+   ========================================= */
+
+/* Main Layout (Z-index: 10 to 50) */
+main { position: relative; z-index: 10; height: 100%; width: 100%; overflow: hidden; }
+
+.view {
+  position: absolute; inset: 0; padding: 20px;
+  overflow-y: auto; overflow-x: hidden;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.96) translateY(10px);
+  transition: all 0.4s var(--ease-smooth);
+}
+.view.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); z-index: 20; }
+
+/* Chat Container */
+#chat-container {
+  position: absolute; inset: 0; padding: 100px 16px 120px 16px;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.msg-block { max-width: 88%; padding: 12px 16px; border-radius: 12px; position: relative; animation: slideIn 0.3s ease-out; line-height: 1.5; font-size: 0.95rem; word-wrap: break-word; }
+.msg-block.user { align-self: flex-end; background: rgba(0,245,255,0.08); border-right: 2px solid var(--primary); text-align: right; }
+.msg-block.ai { align-self: flex-start; background: rgba(255,255,255,0.05); border-left: 2px solid var(--secondary); }
+
+/* Adaptação Day Mode (Chat) */
+body.mode-day .msg-block.ai { background: rgba(0,0,0,0.05); color: #222; border-color: rgba(0,0,0,0.1); }
+
+/* Inputs & Dock */
+.input-dock {
+  position: fixed; bottom: 0; left: 0; right: 0; padding: 16px;
+  background: linear-gradient(to top, var(--bg-deep) 30%, transparent);
+  z-index: 30; display: flex; flex-direction: column; align-items: center;
+}
+body.mode-day .input-dock { background: linear-gradient(to top, rgba(255,255,255,0.78) 10%, transparent); }
+
+.input-row { display: flex; width: 100%; gap: 10px; align-items: center; max-width: 800px; transition: opacity 0.3s, transform 0.3s; }
+body.field-closed .input-row { opacity: 0; pointer-events: none; transform: translateY(20px); }
+
+.glass-input {
+  flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border); color: inherit;
+  padding: 14px 20px; border-radius: 99px; outline: none; transition: 0.3s;
+  font-family: var(--font-code);
+}
+.glass-input:focus { background: rgba(0,0,0,0.5); border-color: var(--primary); box-shadow: 0 0 15px rgba(0,245,255,0.2); }
+body.mode-day .glass-input { background: rgba(255,255,255,0.8); color: #000; }
+
+.btn-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05);
+  color: inherit; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px);
+}
+.btn-icon:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); border-color: var(--primary); }
+body.mode-day .btn-icon { color: #333; border-color: rgba(0,0,0,0.2); }
+
+/* Drawers & Modals (Z-index: 100+) */
+.drawer { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 100; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s; }
+.drawer.open { opacity: 1; pointer-events: auto; }
+.drawer-content { width: 90%; max-width: 450px; max-height: 85vh; background: var(--bg-panel); border: 1px solid var(--glass-border); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s var(--ease-overshoot); }
+.drawer.open .drawer-content { transform: scale(1); }
+/* =========================================
+   3. FUSION UI - CARDS, ORB, HUD & DH10 BAR
+   ========================================= */
+
+/* Snap Zones */
+#snap-zone {
+  position: fixed; top: 0; left: 0; right: 0; height: 80px;
+  background: linear-gradient(to bottom, rgba(0, 242, 255, 0.25), transparent);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 9000;
+  box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+}
+#snap-zone.active { opacity: 1; }
+
+/* Fusion Card Container */
+.fusion-container { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 8000; }
+
+/* Fusion Card (Base) */
+.fusion-card {
+  pointer-events: auto; width: 100%; max-width: 440px; max-height: 78vh;
+  overflow-y: auto; overflow-x: hidden;
+  background: var(--glass-surface); backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border); border-radius: 36px; padding: 30px 25px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  position: relative; opacity: 0; transform: translateY(50px) scale(0.96);
+  display: flex; flex-direction: column; gap: 8px;
+  transition: width 0.5s var(--ease-smooth), height 0.5s var(--ease-smooth), border-radius 0.5s var(--ease-smooth), opacity 0.4s, left 0.4s var(--ease-smooth), top 0.4s var(--ease-smooth), box-shadow 0.4s;
+  will-change: transform, width, height, border-radius, left, top;
+  touch-action: none;
+}
+.fusion-card::-webkit-scrollbar { display: none; }
+.fusion-card.active { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Orb Mode */
+.fusion-card.orb {
+  position: fixed !important; width: 68px !important; height: 68px !important;
+  padding: 0 !important; border-radius: 50% !important;
+  align-items: center; justify-content: center; cursor: grab; overflow: visible;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0,242,255,0.2);
+  z-index: 9999;
+}
+.fusion-card.orb:active { cursor: grabbing; transform: scale(0.95); }
+.fusion-card.orb .text-block, .fusion-card.orb .card-body { display: none !important; }
+
+/* HUD Mode */
+.fusion-card.hud {
+  position: fixed !important; top: 0 !important; left: 50% !important;
+  transform: translateX(-50%) !important; width: 96% !important; max-width: 600px !important; height: 64px !important;
+  padding: 0 16px !important; border-radius: 0 0 24px 24px !important;
+  flex-direction: row; align-items: center; justify-content: space-between;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7); z-index: 9999; border-top: none;
+}
+.fusion-card.hud .card-body { display: none !important; }
+
+.drag-handle { width: 60px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none; cursor: grab; transition: background 0.3s; }
+.fusion-card.hud .drag-handle { display: block; pointer-events: auto; }
+.fusion-card.hud:active .drag-handle { background: var(--primary); width: 70px; }
+
+/* DH10 Symbol Bar */
+.symbol-bar {
+  position: fixed; z-index: 9999; display: flex; gap: 8px; padding: 10px;
+  background: rgba(10, 12, 20, 0.75); backdrop-filter: blur(15px) saturate(160%);
+  border: 1px solid var(--glass-border); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.8s ease, left 0.4s var(--ease-smooth), top 0.4s var(--ease-smooth), border-radius 0.3s ease, padding 0.3s ease;
+  user-select: none; touch-action: none;
+}
+.symbol-bar.idle { opacity: 0.15; }
+.symbol-bar.idle:hover { opacity: 1; }
+.symbol-bar.snap-side { flex-direction: column; border-radius: 0 20px 20px 0; border-left: 0; }
+.symbol-bar.snap-side-right { flex-direction: column; border-radius: 20px 0 0 20px; border-right: 0; }
+.symbol-bar.snap-top { flex-direction: row; border-radius: 0 0 20px 20px; border-top: 0; align-items: center; justify-content: center; }
+.symbol-bar.floating { flex-direction: column; border-radius: 24px; }
+
+.symbol-button {
+  width: 28px; height: 28px; border-radius: 12px; border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(20, 22, 32, 0.85); color: var(--text-main); cursor: pointer; transition: all 0.2s ease;
+}
+.symbol-button:active { transform: scale(0.9); }
+
+/* Lixeira (Drop Zone) */
+.trash {
+  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) scale(0.8);
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 42, 109, 0.2); color: var(--danger); border: 2px dashed var(--danger);
+  z-index: 10001; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+}
+.trash.visible { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+.trash.over { background: var(--danger); color: white; transform: translateX(-50%) scale(1.2); }
+
