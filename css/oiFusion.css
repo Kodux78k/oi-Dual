@@ -1,0 +1,89 @@
+/* =========================================
+   3. FUSION UI - CARDS, ORB, HUD & DH10 BAR
+   ========================================= */
+
+/* Snap Zones */
+#snap-zone {
+  position: fixed; top: 0; left: 0; right: 0; height: 80px;
+  background: linear-gradient(to bottom, rgba(0, 242, 255, 0.25), transparent);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 9000;
+  box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+}
+#snap-zone.active { opacity: 1; }
+
+/* Fusion Card Container */
+.fusion-container { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 8000; }
+
+/* Fusion Card (Base) */
+.fusion-card {
+  pointer-events: auto; width: 100%; max-width: 440px; max-height: 78vh;
+  overflow-y: auto; overflow-x: hidden;
+  background: var(--glass-surface); backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border); border-radius: 36px; padding: 30px 25px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  position: relative; opacity: 0; transform: translateY(50px) scale(0.96);
+  display: flex; flex-direction: column; gap: 8px;
+  transition: width 0.5s var(--ease-smooth), height 0.5s var(--ease-smooth), border-radius 0.5s var(--ease-smooth), opacity 0.4s, left 0.4s var(--ease-smooth), top 0.4s var(--ease-smooth), box-shadow 0.4s;
+  will-change: transform, width, height, border-radius, left, top;
+  touch-action: none;
+}
+.fusion-card::-webkit-scrollbar { display: none; }
+.fusion-card.active { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Orb Mode */
+.fusion-card.orb {
+  position: fixed !important; width: 68px !important; height: 68px !important;
+  padding: 0 !important; border-radius: 50% !important;
+  align-items: center; justify-content: center; cursor: grab; overflow: visible;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0,242,255,0.2);
+  z-index: 9999;
+}
+.fusion-card.orb:active { cursor: grabbing; transform: scale(0.95); }
+.fusion-card.orb .text-block, .fusion-card.orb .card-body { display: none !important; }
+
+/* HUD Mode */
+.fusion-card.hud {
+  position: fixed !important; top: 0 !important; left: 50% !important;
+  transform: translateX(-50%) !important; width: 96% !important; max-width: 600px !important; height: 64px !important;
+  padding: 0 16px !important; border-radius: 0 0 24px 24px !important;
+  flex-direction: row; align-items: center; justify-content: space-between;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7); z-index: 9999; border-top: none;
+}
+.fusion-card.hud .card-body { display: none !important; }
+
+.drag-handle { width: 60px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none; cursor: grab; transition: background 0.3s; }
+.fusion-card.hud .drag-handle { display: block; pointer-events: auto; }
+.fusion-card.hud:active .drag-handle { background: var(--primary); width: 70px; }
+
+/* DH10 Symbol Bar */
+.symbol-bar {
+  position: fixed; z-index: 9999; display: flex; gap: 8px; padding: 10px;
+  background: rgba(10, 12, 20, 0.75); backdrop-filter: blur(15px) saturate(160%);
+  border: 1px solid var(--glass-border); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.8s ease, left 0.4s var(--ease-smooth), top 0.4s var(--ease-smooth), border-radius 0.3s ease, padding 0.3s ease;
+  user-select: none; touch-action: none;
+}
+.symbol-bar.idle { opacity: 0.15; }
+.symbol-bar.idle:hover { opacity: 1; }
+.symbol-bar.snap-side { flex-direction: column; border-radius: 0 20px 20px 0; border-left: 0; }
+.symbol-bar.snap-side-right { flex-direction: column; border-radius: 20px 0 0 20px; border-right: 0; }
+.symbol-bar.snap-top { flex-direction: row; border-radius: 0 0 20px 20px; border-top: 0; align-items: center; justify-content: center; }
+.symbol-bar.floating { flex-direction: column; border-radius: 24px; }
+
+.symbol-button {
+  width: 28px; height: 28px; border-radius: 12px; border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(20, 22, 32, 0.85); color: var(--text-main); cursor: pointer; transition: all 0.2s ease;
+}
+.symbol-button:active { transform: scale(0.9); }
+
+/* Lixeira (Drop Zone) */
+.trash {
+  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) scale(0.8);
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 42, 109, 0.2); color: var(--danger); border: 2px dashed var(--danger);
+  z-index: 10001; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+}
+.trash.visible { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+.trash.over { background: var(--danger); color: white; transform: translateX(-50%) scale(1.2); }
