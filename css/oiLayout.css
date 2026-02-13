@@ -1,0 +1,64 @@
+/* =========================================
+   2. APP CSS - CHAT, VIEWS & INPUTS
+   ========================================= */
+
+/* Main Layout (Z-index: 10 to 50) */
+main { position: relative; z-index: 10; height: 100%; width: 100%; overflow: hidden; }
+
+.view {
+  position: absolute; inset: 0; padding: 20px;
+  overflow-y: auto; overflow-x: hidden;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.96) translateY(10px);
+  transition: all 0.4s var(--ease-smooth);
+}
+.view.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); z-index: 20; }
+
+/* Chat Container */
+#chat-container {
+  position: absolute; inset: 0; padding: 100px 16px 120px 16px;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.msg-block { max-width: 88%; padding: 12px 16px; border-radius: 12px; position: relative; animation: slideIn 0.3s ease-out; line-height: 1.5; font-size: 0.95rem; word-wrap: break-word; }
+.msg-block.user { align-self: flex-end; background: rgba(0,245,255,0.08); border-right: 2px solid var(--primary); text-align: right; }
+.msg-block.ai { align-self: flex-start; background: rgba(255,255,255,0.05); border-left: 2px solid var(--secondary); }
+
+/* Adaptação Day Mode (Chat) */
+body.mode-day .msg-block.ai { background: rgba(0,0,0,0.05); color: #222; border-color: rgba(0,0,0,0.1); }
+
+/* Inputs & Dock */
+.input-dock {
+  position: fixed; bottom: 0; left: 0; right: 0; padding: 16px;
+  background: linear-gradient(to top, var(--bg-deep) 30%, transparent);
+  z-index: 30; display: flex; flex-direction: column; align-items: center;
+}
+body.mode-day .input-dock { background: linear-gradient(to top, rgba(255,255,255,0.78) 10%, transparent); }
+
+.input-row { display: flex; width: 100%; gap: 10px; align-items: center; max-width: 800px; transition: opacity 0.3s, transform 0.3s; }
+body.field-closed .input-row { opacity: 0; pointer-events: none; transform: translateY(20px); }
+
+.glass-input {
+  flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border); color: inherit;
+  padding: 14px 20px; border-radius: 99px; outline: none; transition: 0.3s;
+  font-family: var(--font-code);
+}
+.glass-input:focus { background: rgba(0,0,0,0.5); border-color: var(--primary); box-shadow: 0 0 15px rgba(0,245,255,0.2); }
+body.mode-day .glass-input { background: rgba(255,255,255,0.8); color: #000; }
+
+.btn-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05);
+  color: inherit; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px);
+}
+.btn-icon:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); border-color: var(--primary); }
+body.mode-day .btn-icon { color: #333; border-color: rgba(0,0,0,0.2); }
+
+/* Drawers & Modals (Z-index: 100+) */
+.drawer { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 100; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s; }
+.drawer.open { opacity: 1; pointer-events: auto; }
+.drawer-content { width: 90%; max-width: 450px; max-height: 85vh; background: var(--bg-panel); border: 1px solid var(--glass-border); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s var(--ease-overshoot); }
+.drawer.open .drawer-content { transform: scale(1); }
