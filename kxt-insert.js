@@ -192,7 +192,7 @@
   min-height:100dvh;
     z-index: 0;
     border: 0;
-    border-radius: 4px;
+    border-radius: 39px;
   ">
 </iframe>
 
