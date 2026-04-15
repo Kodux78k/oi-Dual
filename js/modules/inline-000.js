@@ -724,25 +724,84 @@ function restoreSavedMode(mode, left, top){
       return text + ' '.repeat(size - text.length);
     }
 
-    function makeMiniAvatarHTML(name, size = 36) {
-      const seed = (name || 'DUAL').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-      const h1 = seed % 360;
-      const h2 = (seed * 37) % 360;
-      const id = 'g' + seed.toString(36);
-      return `
-        <svg width="${size}" height="${size}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="${id}" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="hsl(${h1},100%,55%)"/>
-              <stop offset="100%" stop-color="hsl(${h2},90%,45%)"/>
-            </linearGradient>
-          </defs>
-          <rect width="32" height="32" rx="7" fill="#071018"/>
-          <circle cx="16" cy="16" r="7" fill="url(#${id})"/>
-          <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-        </svg>
-      `;
-    }
+    // 🔥 ===============================
+// 🔥 ORB SYSTEM · CORE UNIFICADO
+// 🔥 ===============================
+
+// 🔹 GERADOR UNIVERSAL
+function makeOrbAvatar(name, size = 36) {
+  const safe = name || 'DUAL';
+
+  // seed determinística baseada no nome
+  const seed = safe.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+
+  const h1 = seed % 360;
+  const h2 = (seed * 37) % 360;
+
+  // 🔒 evita colisão de gradient no DOM
+  const uid = Math.random().toString(36).slice(2, 6);
+  const id = 'g' + seed.toString(36) + uid;
+
+  return `
+    <svg width="${size}" height="${size}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="hsl(${h1},100%,55%)"/>
+          <stop offset="100%" stop-color="hsl(${h2},90%,45%)"/>
+        </linearGradient>
+      </defs>
+
+      <!-- base -->
+      <rect width="32" height="32" rx="7" fill="#071018"/>
+
+      <!-- glow -->
+      <circle cx="16" cy="16" r="9" fill="url(#${id})" opacity="0.25"/>
+
+      <!-- core -->
+      <circle cx="16" cy="16" r="7" fill="url(#${id})"/>
+
+      <!-- ring -->
+      <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+    </svg>
+  `;
+}
+
+
+// 🔓 GLOBAL HOOK
+window.makeOrbAvatar = makeOrbAvatar;
+
+// 🔹 ALIAS OPCIONAL (mini semântico)
+window.makeMiniAvatar = (name) => makeOrbAvatar(name, 24);
+
+
+// 🔁 ===============================
+// 🔁 UPDATE INTERFACE
+// 🔁 ===============================
+function updateInterface(name){
+  const safe = name || 'Convidado';
+
+  // 🔹 texto
+  els.lblName.innerText = safe;
+  els.input.value = safe;
+
+  // 🔹 estado ativo
+  const activeKey = STATE.keys.find(k => k.active);
+
+  els.smallIdent.innerText = activeKey ? activeKey.name : '--';
+  els.actBadge.innerText = activeKey ? `key:${activeKey.name}` : 'v:--';
+
+  // 🔥 ORBS SINCRONIZADOS
+  const orbBig  = makeOrbAvatar(safe, 64);
+  const orbMid  = makeOrbAvatar(safe, 36);
+  const orbMini = makeOrbAvatar(safe, 24);
+
+  els.avatarTgt.innerHTML = orbBig;
+  els.smallMiniAvatar.innerHTML = orbMini;
+  els.actMiniAvatar.innerHTML = orbMid;
+
+  // 🔹 nome ativo
+  els.actName.innerText = safe;
+}
 
     function createAsciiActivation(name) {
       const clean = (name || '').trim() || 'Convidado';
