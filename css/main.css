@@ -155,7 +155,7 @@ body{
 .cyber-input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px 50px 16px 18px;color:#fff;font-family:var(--font-code);font-size:0.9rem}
 
 .activation-wrap{display:flex;flex-direction:column;gap:8px}
-.activation-card{background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.04);padding:12px;border-radius:10px;overflow:hidden;transition:all 320ms var(--ease-smooth)}
+.activation-card{background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.04);padding:12px;border-radius:10px;overflow-y:auto;transition:all 320ms var(--ease-smooth)}
 .activation-pre{font-family:var(--font-code);white-space:pre-wrap;margin:0;padding:8px;background:rgba(0,0,0,0.12);border-radius:8px;border:1px dashed rgba(255,255,255,0.03);color:#fff;font-size:0.75rem}
 .activation-hidden{max-height:0;opacity:0;padding:0 12px;pointer-events:none;margin-top:0}
 .activation-open{max-height:567px;opacity:1;padding:12px;margin-top:4px}
