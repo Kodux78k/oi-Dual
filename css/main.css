@@ -217,7 +217,7 @@ select.btn{ width:100%; padding:8px; background:rgba(0,0,0,0.4); color:#fff; bor
     background: rgba(255,255,255,.02);
     border: 1px solid rgba(255,255,255,.05);
     backdrop-filter: blur(10px);
-     border-radius: 24px;
+     border-radius: 12px;
   }
 
   .activation-pre{
