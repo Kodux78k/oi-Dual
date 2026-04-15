@@ -791,7 +791,7 @@ function updateInterface(name){
   els.actBadge.innerText = activeKey ? `key:${activeKey.name}` : 'v:--';
 
   // 🔥 ORBS SINCRONIZADOS
-  const orbBig  = makeOrbAvatar(safe, 96);
+  const orbBig  = makeOrbAvatar(safe, 64);
   const orbMid  = makeOrbAvatar(safe, 36);
   const orbMini = makeOrbAvatar(safe, 24);
 
