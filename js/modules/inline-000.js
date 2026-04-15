@@ -192,9 +192,9 @@
       els.smallIdent.innerText = activeKey ? activeKey.name : '--';
       els.actBadge.innerText = activeKey ? `key:${activeKey.name}` : 'v:--';
       els.smallMiniAvatar.innerHTML = createMiniSvg(safe);
-      els.actMiniAvatar.innerHTML = createMiniSvg(safe,36);
+      els.actMiniAvatar.innerHTML = createMiniSvg(safe,96);
       els.actName.innerText = safe;
-      els.avatarTgt.innerHTML = createSvg('Main',64);
+      els.avatarTgt.innerHTML = createSvg('Main',96);
       const phrases = ["Foco estável.","Ritmo criativo.","Percepção sutil."];
       els.smallText.innerText = activeKey ? `${activeKey.name} [ATIVO]` : (safe==='Convidado'?'Aguardando...':`${safe} · ${phrases[safe.length%phrases.length]}`);
       const line = `+${'-'.repeat(safe.length+4)}+`;
@@ -319,7 +319,7 @@
         dragOffsetY: 0,
         pointerId: null
     };
-    const FIRST_PREVIEW_DURATION = 5000; // 5 segundos
+    const FIRST_PREVIEW_DURATION = 1780; // 5 segundos
     const HUD_SNAP_THRESHOLD = 60; // Distância do topo para snapar
     const SWIPE_DOWN_THRESHOLD = 80; // Distância para puxar HUD
     const LONG_PRESS_MS = 350; // Tempo para virar Orb via long press
@@ -791,7 +791,7 @@ function updateInterface(name){
   els.actBadge.innerText = activeKey ? `key:${activeKey.name}` : 'v:--';
 
   // 🔥 ORBS SINCRONIZADOS
-  const orbBig  = makeOrbAvatar(safe, 64);
+  const orbBig  = makeOrbAvatar(safe, 96);
   const orbMid  = makeOrbAvatar(safe, 36);
   const orbMini = makeOrbAvatar(safe, 24);
 
